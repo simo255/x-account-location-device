@@ -18,6 +18,8 @@ The script extracts this official location and device data from X's GraphQL API,
 - **Cross-Platform**: Works on Firefox, Chrome, Edge, and other browsers with Tampermonkey
 
 <hr>
+<img width="866" height="109" alt="image" src="https://github.com/user-attachments/assets/22b2e25c-8095-4dea-9bc6-3583740442cf" />
+<hr>
 <img width="866" height="106" alt="image" src="https://github.com/user-attachments/assets/3ce0434a-4ba8-423c-8388-f722e6f9aad5" />
 <hr>
 <img width="866" height="125" alt="image" src="https://github.com/user-attachments/assets/60bc8fcb-c167-43b2-8bb1-f5593ccbb484" />
