@@ -19,9 +19,8 @@ The script extracts this official location and device data from X's GraphQL API,
 - **Cross-Platform**: Works on Firefox, Chrome, Edge, and other browsers with Tampermonkey
 - **Language Agnostic**: Works regardless of your X interface language (English, German, Japanese, etc.)
 
-<hr>
-[x-account-location-device-blocked-country.webm](https://github.com/user-attachments/assets/68ce25bb-8807-43b8-8d72-8e24ae35bc7c)
-<hr>
+[x-account-location-device-blocked-country.webm](https://github.com/user-attachments/assets/b0ff82f9-e6d7-4282-bb9e-6b29630c7c09)
+
 
 > [!NOTE]
 > **Windows Support Added:** Windows 10/11 doesn't natively support flag emojis. This extension now automatically detects Windows and replaces the broken characters with high-quality Twemoji images (the same ones Twitter uses), so flags look perfect on all platforms! 🎨
