@@ -16,6 +16,7 @@ The script extracts this official location and device data from X's GraphQL API,
 - **Hover Tooltips**: Detailed information on hover (e.g., "Connected via: Android App")
 - **Smart Caching**: 24-hour cache optimized for X's rate limits with manual clearing options
 - **Cross-Platform**: Works on Firefox, Chrome, Edge, and other browsers with Tampermonkey
+- **Language Agnostic**: Works regardless of your X interface language (English, German, Japanese, etc.)
 
 <hr>
 <img width="866" height="109" alt="image" src="https://github.com/user-attachments/assets/22b2e25c-8095-4dea-9bc6-3583740442cf" />
@@ -28,7 +29,7 @@ The script extracts this official location and device data from X's GraphQL API,
 <hr>
 
 > [!NOTE]  
-> On Windows, Chromium-based browsers (Chrome, Edge, Brave) don’t display emoji flags by default. Firefox does.
+> On Windows, Chromium-based browsers (Chrome, Edge, Brave) don’t display emoji flags by default. Firefox does. This script includes a font stack fix to try and render them correctly if you have compatible fonts installed.
 
 ## 🚀 Installation
 
@@ -67,12 +68,20 @@ XFlagScript.getCacheInfo()
 // Clear all cached data
 XFlagScript.clearCache()
 
-// Remove displayed flags
-XFlagScript.removeAllFlags()
+// Toggle extension on/off
+XFlagScript.toggle()
 
-// Re-process all usernames
-XFlagScript.processUsernames()
+// Debug info
+XFlagScript.debug()
 ```
+
+## 📜 Changelog
+
+### v1.1.0
+- Rewrote the country lookup engine to be instant, removing lag on busy timelines.
+- Now forces X to return English country names, so flags work even if your interface is in German, French, etc.
+- Updated font stacks to properly render flag emojis on Windows and Firefox.
+- Added a fallback authentication mechanism so the script works even if it misses the initial API handshake.
 
 ## 🔧 How It Works
 
