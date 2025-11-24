@@ -5,7 +5,7 @@
      * Configuration & Constants
      */
     const CONFIG = {
-        VERSION: '1.2.0',
+        VERSION: '1.3.0',
         CACHE_KEY: 'x_location_cache_v2',
         CACHE_EXPIRY: 24 * 60 * 60 * 1000, // 24 hours
         API: {
@@ -90,6 +90,7 @@
             this.rateLimitReset = 0;
             this.headers = null;
             this.processingSet = new Set();
+            this.fetchPromises = new Map(); // Track active promises
             this.observer = null;
             this.isEnabled = true;
 
@@ -241,16 +242,30 @@
          * API Interaction
          */
         async fetchUserInfo(screenName) {
-            // Check cache first
+            // 1. Check cache
             if (this.cache.has(screenName)) {
                 return this.cache.get(screenName);
             }
 
-            // Queue request
-            return new Promise((resolve, reject) => {
+            // 2. Check active promises (deduplication)
+            if (this.fetchPromises.has(screenName)) {
+                return this.fetchPromises.get(screenName);
+            }
+
+            // 3. Create new promise and queue request
+            const promise = new Promise((resolve, reject) => {
                 this.requestQueue.push({ screenName, resolve, reject });
                 this.processQueue();
+            }).then(result => {
+                this.fetchPromises.delete(screenName);
+                return result;
+            }).catch(error => {
+                this.fetchPromises.delete(screenName);
+                throw error;
             });
+
+            this.fetchPromises.set(screenName, promise);
+            return promise;
         }
 
         async processQueue() {
@@ -365,7 +380,24 @@
 
         getFlagEmoji(countryName) {
             if (!countryName) return null;
-            return COUNTRY_FLAGS[countryName.trim().toLowerCase()] || '🌍';
+            const emoji = COUNTRY_FLAGS[countryName.trim().toLowerCase()] || '🌍';
+            
+            // Check if we are on Windows (which doesn't support flag emojis)
+            const isWindows = navigator.platform.indexOf('Win') > -1;
+            
+            if (isWindows && emoji !== '🌍') {
+                // Convert emoji to Twemoji URL
+                const codePoints = Array.from(emoji)
+                    .map(c => c.codePointAt(0).toString(16))
+                    .join('-');
+                
+                return `<img src="https://abs-0.twimg.com/emoji/v2/svg/${codePoints}.svg"
+                        class="x-flag-emoji"
+                        alt="${emoji}"
+                        style="height: 1.2em; vertical-align: -0.2em;">`;
+            }
+            
+            return emoji;
         }
 
         getDeviceEmoji(deviceString) {
@@ -381,10 +413,9 @@
             if (element.dataset.xProcessed) return;
             
             const screenName = this.extractUsername(element);
-            if (!screenName || this.processingSet.has(screenName)) return;
+            if (!screenName) return;
 
             element.dataset.xProcessed = 'true';
-            this.processingSet.add(screenName);
 
             // Insert shimmer
             const shimmer = document.createElement('span');
@@ -396,7 +427,7 @@
                 const info = await this.fetchUserInfo(screenName);
                 shimmer.remove();
 
-                if (info.location || info.device) {
+                if (info && (info.location || info.device)) {
                     const badge = document.createElement('span');
                     badge.className = 'x-info-badge';
                     
@@ -407,14 +438,7 @@
                     }
                     
                     // Fallback device detection if API returns null (common for some accounts)
-                    let device = info.device;
-                    if (!device) {
-                        const ua = navigator.userAgent.toLowerCase();
-                        if (ua.includes('android')) device = 'Android';
-                        else if (ua.includes('iphone')) device = 'iOS';
-                        else if (ua.includes('windows')) device = 'Windows';
-                        else device = 'Web';
-                    }
+                    const device = info.device;
 
                     if (device) {
                         const emoji = this.getDeviceEmoji(device);
@@ -430,28 +454,64 @@
             } catch (e) {
                 console.debug(`Failed to process ${screenName}`, e);
                 shimmer.remove();
-            } finally {
-                this.processingSet.delete(screenName);
             }
         }
 
         extractUsername(element) {
-            // Try to find the username link
+            // 1. Try to find the username link (Timeline/Feed)
             const link = element.querySelector('a[href^="/"]');
-            if (!link) return null;
+            if (link) {
+                const href = link.getAttribute('href');
+                const match = href.match(/^\/([^/]+)$/);
+                if (match) {
+                    const username = match[1];
+                    const invalid = ['home', 'explore', 'notifications', 'messages', 'search', 'settings'];
+                    if (!invalid.includes(username)) return username;
+                }
+            }
 
-            const href = link.getAttribute('href');
-            const match = href.match(/^\/([^/]+)$/);
-            if (!match) return null;
+            // 2. Profile Header Case (Username is text, not a link)
+            // Look for text starting with @
+            const textNodes = Array.from(element.querySelectorAll('span, div[dir="ltr"]'));
+            for (const node of textNodes) {
+                const text = node.textContent.trim();
+                if (text.startsWith('@') && text.length > 1) {
+                    const username = text.substring(1);
+                    // Basic validation to ensure it's a username and not just random text
+                    if (/^[a-zA-Z0-9_]+$/.test(username)) {
+                        return username;
+                    }
+                }
+            }
 
-            const username = match[1];
-            const invalid = ['home', 'explore', 'notifications', 'messages', 'search', 'settings'];
-            if (invalid.includes(username)) return null;
-
-            return username;
+            return null;
         }
 
         findInsertionPoint(container, screenName) {
+            // 1. Profile Header Specific Logic
+            // The profile header has a specific structure where the name and handle are in separate rows
+            // We want to target the first row (Display Name)
+            
+            // Check if this is likely a profile header (no timestamp link, large text)
+            const isProfileHeader = !container.querySelector('time') && container.querySelector('[data-testid="userFollowIndicator"]') !== null ||
+                                    (container.getAttribute('data-testid') === 'UserName' && container.className.includes('r-14gqq1x'));
+
+            if (isProfileHeader) {
+                // Find the display name container (first div[dir="ltr"])
+                const nameContainer = container.querySelector('div[dir="ltr"]');
+                if (nameContainer) {
+                    // We want to append to this container, so the flag sits inline with the name/badge
+                    // But we need to be careful not to break the flex layout if it exists
+                    // The name container usually has spans inside. We want to insert after the last span.
+                    const lastSpan = nameContainer.querySelector('span:last-child');
+                    if (lastSpan) {
+                        return { target: lastSpan.parentNode, ref: null }; // Append to end of name container
+                    }
+                    return { target: nameContainer, ref: null };
+                }
+            }
+
+            // 2. Timeline/Feed Case
             // Look for the handle (@username)
             const links = Array.from(container.querySelectorAll('a'));
             const handleLink = links.find(l => l.textContent.trim().toLowerCase() === `@${screenName.toLowerCase()}`);
@@ -461,7 +521,7 @@
                 return { target: handleLink.parentNode.parentNode, ref: handleLink.parentNode.nextSibling };
             }
 
-            // Fallback: Try to find the name container
+            // 3. Fallback: Try to find the name container via href
             const nameLink = container.querySelector(`a[href="/${screenName}"]`);
             if (nameLink) {
                 return { target: nameLink.parentNode, ref: nameLink.nextSibling };
@@ -474,16 +534,18 @@
             this.observer = new MutationObserver((mutations) => {
                 if (!this.isEnabled) return;
                 
-                let shouldProcess = false;
                 for (const m of mutations) {
-                    if (m.addedNodes.length) {
-                        shouldProcess = true;
-                        break;
-                    }
-                }
-
-                if (shouldProcess) {
-                    this.scanPage();
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) { // Element
+                            // Check if the node itself is a username
+                            if (node.matches && node.matches(CONFIG.SELECTORS.USERNAME)) {
+                                this.processElement(node);
+                            }
+                            // Check descendants
+                            const elements = node.querySelectorAll(CONFIG.SELECTORS.USERNAME);
+                            elements.forEach(el => this.processElement(el));
+                        }
+                    });
                 }
             });
 

@@ -28,8 +28,8 @@ The script extracts this official location and device data from X's GraphQL API,
 <img width="866" height="100" alt="image" src="https://github.com/user-attachments/assets/7ab9f87a-ef6b-4c78-9fca-38d98a34cba5" />
 <hr>
 
-> [!NOTE]  
-> On Windows, Chromium-based browsers (Chrome, Edge, Brave) don’t display emoji flags by default. Firefox does. This script includes a font stack fix to try and render them correctly if you have compatible fonts installed.
+> [!NOTE]
+> **Windows Support Added:** Windows 10/11 doesn't natively support flag emojis. This extension now automatically detects Windows and replaces the broken characters with high-quality Twemoji images (the same ones Twitter uses), so flags look perfect on all platforms! 🎨
 
 ## 🚀 Installation
 
@@ -104,6 +104,13 @@ XFlagScript.debug()
 
 ## 📜 Changelog
 
+
+### v1.3.0
+- **Windows Support**: Added automatic Twemoji image replacement for Windows users, fixing the "missing flag" issue on Chrome/Edge/Brave.
+- **Profile Header Support**: Now correctly displays flags in user profile headers (even for unverified accounts).
+- **Bug Fixes**: Fixed an issue where flags would only appear on the first tweet of a user and not subsequent ones.
+- **Performance**: Optimized DOM scanning to be much lighter on CPU by only processing new nodes.
+- **Accuracy**: Removed misleading fallback that showed your own device type when data was missing.
 
 ### v1.2.0
 - **Dual Mode**: Now available as both a standalone Browser Extension (Chrome/Firefox) and a Userscript.
