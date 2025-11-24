@@ -12,6 +12,7 @@ The script extracts this official location and device data from X's GraphQL API,
 
 - **Country Flags**: Displays flag emojis next to usernames based on account location from X's API
 - **Device Indicators**: Shows device/platform emojis (📱💻🖥️🌐) indicating how users are connected
+- **Country Blocking**: NEW! Block tweets from specific countries with an intuitive modal interface
 - **Real API Data**: Extracts actual location and device info directly from X's GraphQL API
 - **Hover Tooltips**: Detailed information on hover (e.g., "Connected via: Android App")
 - **Smart Caching**: 24-hour cache optimized for X's rate limits with manual clearing options
@@ -84,8 +85,18 @@ Hover over the device emoji to see detailed information like:
 - "Connected via: Web"
 - "Connected via: iPhone"
 
+### Country Blocking
+Click the **"Block Countries"** link in the X sidebar (just above the "More" button) to:
+- Select one or multiple countries to block
+- Search countries by name
+- View all countries with their flags
+- See a counter showing how many countries are blocked
+- Tweets from blocked countries will be automatically hidden from your feed
+
+Blocked countries are saved in localStorage and persist across browser sessions.
+
 ### Cache Management
-The script caches data for 24 hours. To manage cache:
+The script caches data for 24 hours. To manage cache and blocking:
 
 **In Browser Console (F12):**
 ```javascript
@@ -98,12 +109,26 @@ XFlagScript.clearCache()
 // Toggle extension on/off
 XFlagScript.toggle()
 
+// Open country blocker modal
+XFlagScript.openBlocker()
+
+// Get list of blocked countries
+XFlagScript.getBlockedCountries()
+
 // Debug info
 XFlagScript.debug()
 ```
 
 ## 📜 Changelog
 
+### v1.4.0
+- **Country Blocking**: Added new sidebar link and modal to block tweets from specific countries
+- **Integrated UI**: Modal matches X's design system perfectly with dark theme, smooth animations, and native styling
+- **Multi-Select**: Select multiple countries to block with visual feedback
+- **Search**: Search functionality to quickly find countries
+- **Persistent Storage**: Blocked countries are saved in localStorage
+- **Auto-Hide**: Tweets from blocked countries are automatically hidden from your feed
+- **API Extensions**: New console commands [`XFlagScript.openBlocker()`](extension/content.js:874) and [`XFlagScript.getBlockedCountries()`](extension/content.js:877)
 
 ### v1.3.0
 - **Windows Support**: Added automatic Twemoji image replacement for Windows users, fixing the "missing flag" issue on Chrome/Edge/Brave.
