@@ -6,6 +6,9 @@
 
 **See where X users are really posting from — and what device they're using.**
 
+If you find this research valuable, I’d appreciate a coffee:  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M61EP5XL)
+
 ---
 
 <img width="800" alt="X-Posed showing country flags and device icons on X timeline" src="https://github.com/user-attachments/assets/53c5c59f-a0f4-4cee-8582-275f9717c807" />
