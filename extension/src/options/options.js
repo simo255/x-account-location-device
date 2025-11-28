@@ -4,7 +4,7 @@
  */
 
 import browserAPI from '../shared/browser-api.js';
-import { MESSAGE_TYPES, VERSION, COUNTRY_FLAGS, STORAGE_KEYS } from '../shared/constants.js';
+import { MESSAGE_TYPES, VERSION, COUNTRY_FLAGS, COUNTRY_LIST, STORAGE_KEYS } from '../shared/constants.js';
 import { getFlagEmoji, formatCountryName, applyTheme } from '../shared/utils.js';
 
 // DOM Elements
@@ -16,9 +16,13 @@ const elements = {
     optFlags: document.getElementById('opt-flags'),
     optDevices: document.getElementById('opt-devices'),
     optVpn: document.getElementById('opt-vpn'),
+    optSidebarLink: document.getElementById('opt-sidebar-link'),
     // Blocked
     blockedList: document.getElementById('blocked-list'),
-    btnManageBlocked: document.getElementById('btn-manage-blocked'),
+    blockedCount: document.getElementById('blocked-count'),
+    countrySearch: document.getElementById('country-search'),
+    countryGrid: document.getElementById('country-grid'),
+    btnClearBlocked: document.getElementById('btn-clear-blocked'),
     // Cloud cache
     optCloudCache: document.getElementById('opt-cloud-cache'),
     cloudStatus: document.getElementById('cloud-status'),
@@ -141,6 +145,9 @@ async function loadSettings() {
             elements.optFlags.checked = currentSettings.showFlags !== false;
             elements.optDevices.checked = currentSettings.showDevices !== false;
             elements.optVpn.checked = currentSettings.showVpnIndicator !== false;
+            if (elements.optSidebarLink) {
+                elements.optSidebarLink.checked = currentSettings.showSidebarBlockerLink !== false;
+            }
         }
     } catch (error) {
         console.error('Failed to load settings:', error);
@@ -159,9 +166,102 @@ async function loadBlockedCountries() {
         if (response?.success) {
             blockedCountries = response.data || [];
             renderBlockedCountries();
+            renderCountryGrid();
+            updateBlockedCount();
         }
     } catch (error) {
         console.error('Failed to load blocked countries:', error);
+    }
+}
+
+/**
+ * Update blocked count badge
+ */
+function updateBlockedCount() {
+    if (elements.blockedCount) {
+        elements.blockedCount.textContent = blockedCountries.length;
+        elements.blockedCount.style.display = blockedCountries.length > 0 ? 'inline-flex' : 'none';
+    }
+}
+
+/**
+ * Render the country grid for selection
+ */
+function renderCountryGrid(filter = '') {
+    if (!elements.countryGrid) return;
+    
+    const filterLower = filter.toLowerCase();
+    const filteredCountries = COUNTRY_LIST.filter(country =>
+        country.toLowerCase().includes(filterLower)
+    );
+    
+    elements.countryGrid.innerHTML = '';
+    
+    for (const country of filteredCountries) {
+        const isBlocked = blockedCountries.includes(country);
+        const item = document.createElement('div');
+        item.className = `country-item${isBlocked ? ' blocked' : ''}`;
+        item.dataset.country = country;
+        
+        const flag = getFlagEmoji(country);
+        const flagHtml = typeof flag === 'string' && flag.startsWith('<img') ? flag : (flag || '🌍');
+        
+        item.innerHTML = `
+            <span class="country-item-flag">${flagHtml}</span>
+            <span class="country-item-name">${formatCountryName(country)}</span>
+            ${isBlocked ? '<span class="country-item-blocked">✓</span>' : ''}
+        `;
+        
+        item.addEventListener('click', () => toggleCountry(country));
+        elements.countryGrid.appendChild(item);
+    }
+}
+
+/**
+ * Toggle a country's blocked status
+ */
+async function toggleCountry(country) {
+    try {
+        const response = await browserAPI.runtime.sendMessage({
+            type: MESSAGE_TYPES.SET_BLOCKED_COUNTRIES,
+            payload: { action: 'toggle', country }
+        });
+
+        if (response?.success) {
+            blockedCountries = response.data || [];
+            renderBlockedCountries();
+            renderCountryGrid(elements.countrySearch?.value || '');
+            updateBlockedCount();
+            showSaveStatus();
+        }
+    } catch (error) {
+        console.error('Failed to toggle country:', error);
+    }
+}
+
+/**
+ * Clear all blocked countries
+ */
+async function clearAllBlocked() {
+    if (blockedCountries.length === 0) return;
+    
+    if (!confirm('Are you sure you want to unblock all countries?')) return;
+    
+    try {
+        const response = await browserAPI.runtime.sendMessage({
+            type: MESSAGE_TYPES.SET_BLOCKED_COUNTRIES,
+            payload: { action: 'clear' }
+        });
+
+        if (response?.success) {
+            blockedCountries = [];
+            renderBlockedCountries();
+            renderCountryGrid(elements.countrySearch?.value || '');
+            updateBlockedCount();
+            showSaveStatus();
+        }
+    } catch (error) {
+        console.error('Failed to clear blocked countries:', error);
     }
 }
 
@@ -582,6 +682,25 @@ function setupEventListeners() {
         saveSettings({ showVpnIndicator: e.target.checked });
     });
 
+    // Sidebar link toggle
+    if (elements.optSidebarLink) {
+        elements.optSidebarLink.addEventListener('change', (e) => {
+            saveSettings({ showSidebarBlockerLink: e.target.checked });
+        });
+    }
+
+    // Country search
+    if (elements.countrySearch) {
+        elements.countrySearch.addEventListener('input', (e) => {
+            renderCountryGrid(e.target.value);
+        });
+    }
+
+    // Clear all blocked
+    if (elements.btnClearBlocked) {
+        elements.btnClearBlocked.addEventListener('click', clearAllBlocked);
+    }
+
     // Cloud cache toggle
     if (elements.optCloudCache) {
         elements.optCloudCache.addEventListener('change', async (e) => {
@@ -602,26 +721,6 @@ function setupEventListeners() {
             }
         });
     }
-
-    // Manage blocked countries
-    elements.btnManageBlocked.addEventListener('click', () => {
-        // Open country blocker modal or redirect
-        // For now, we'll show an alert
-        const tabs = browserAPI.tabs;
-        if (tabs && tabs.query) {
-            tabs.query({ url: ['*://*.x.com/*', '*://*.twitter.com/*'], active: true }).then(activeTabs => {
-                if (activeTabs.length > 0) {
-                    tabs.sendMessage(activeTabs[0].id, { type: 'OPEN_BLOCKER' }).catch(() => {
-                        alert('Please open X (twitter.com) first, then click the "Block Countries" link in the sidebar.');
-                    });
-                } else {
-                    alert('Please open X (twitter.com) first, then click the "Block Countries" link in the sidebar.');
-                }
-            });
-        } else {
-            alert('Please open X (twitter.com) and click the "Block Countries" link in the sidebar.');
-        }
-    });
 
     // Clear cache
     elements.btnClearCache.addEventListener('click', async () => {

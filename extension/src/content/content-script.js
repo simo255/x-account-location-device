@@ -158,7 +158,8 @@ function setupBackgroundListener() {
         const { type, payload } = message;
 
         switch (type) {
-            case MESSAGE_TYPES.SETTINGS_UPDATED:
+            case MESSAGE_TYPES.SETTINGS_UPDATED: {
+                const prevSettings = { ...settings };
                 settings = payload;
                 isEnabled = settings.enabled !== false;
                 debugMode = settings.debugMode === true;
@@ -167,8 +168,17 @@ function setupBackgroundListener() {
                     // Remove existing badges if disabled
                     document.querySelectorAll(`.${CSS_CLASSES.INFO_BADGE}`).forEach(el => el.remove());
                 }
+                // Handle sidebar link toggle
+                if (prevSettings.showSidebarBlockerLink !== settings.showSidebarBlockerLink) {
+                    if (settings.showSidebarBlockerLink === false) {
+                        removeSidebarLink();
+                    } else {
+                        injectSidebarLink();
+                    }
+                }
                 sendResponse({ success: true });
                 break;
+            }
 
             case MESSAGE_TYPES.BLOCKED_COUNTRIES_UPDATED:
                 blockedCountries = new Set(payload);
@@ -234,7 +244,7 @@ function detectAndApplyTheme() {
  */
 function detectXTheme() {
     // Check CSS variable first
-    const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--background-color').trim();
+    const bgColor = window.getComputedStyle(document.documentElement).getPropertyValue('--background-color').trim();
     
     if (bgColor) {
         // Parse the color
@@ -250,7 +260,7 @@ function detectXTheme() {
     }
     
     // Fallback: check body background
-    const bodyBg = getComputedStyle(document.body).backgroundColor;
+    const bodyBg = window.getComputedStyle(document.body).backgroundColor;
     
     if (bodyBg) {
         if (bodyBg.includes('255, 255, 255')) {
@@ -265,7 +275,7 @@ function detectXTheme() {
     }
     
     // Check HTML background as last resort
-    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+    const htmlBg = window.getComputedStyle(document.documentElement).backgroundColor;
     if (htmlBg) {
         if (htmlBg.includes('255, 255, 255')) {
             return 'light';
@@ -661,6 +671,12 @@ function createBadge(element, screenName, info) {
  * Inject sidebar link for country blocker
  */
 function injectSidebarLink() {
+    // Check if sidebar link is enabled in settings
+    if (settings.showSidebarBlockerLink === false) {
+        debug('Sidebar blocker link disabled in settings');
+        return;
+    }
+    
     // Wait for sidebar to load
     const checkSidebar = setInterval(() => {
         let nav = document.querySelector(SELECTORS.PRIMARY_NAV);
@@ -694,6 +710,17 @@ function injectSidebarLink() {
 
     // Stop after 10 seconds
     setTimeout(() => clearInterval(checkSidebar), 10000);
+}
+
+/**
+ * Remove sidebar blocker link if it exists
+ */
+function removeSidebarLink() {
+    const link = document.getElementById('x-country-blocker-link');
+    if (link) {
+        link.remove();
+        debug('Sidebar blocker link removed');
+    }
 }
 
 /**

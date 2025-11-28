@@ -142,6 +142,17 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
+
+                <div class="option-row">
+                    <div class="option-info">
+                        <span class="option-label">Show Sidebar "Block Countries" Link</span>
+                        <span class="option-description">Display the Block Countries link in X's sidebar navigation</span>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="opt-sidebar-link" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </section>
 
             <!-- Blocked Countries -->
@@ -151,19 +162,31 @@
                         <path fill="currentColor" d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm6 9.09c0 4-2.55 7.7-6 8.83-3.45-1.13-6-4.82-6-8.83V6.31l6-2.12 6 2.12v4.78z"/>
                     </svg>
                     Blocked Countries
+                    <span class="blocked-count" id="blocked-count">0</span>
                 </h2>
 
                 <p class="section-description">
-                    Tweets from users in blocked countries will be hidden from your feed.
+                    Tweets from users in blocked countries will be hidden from your feed. Click a country to toggle blocking.
                 </p>
 
+                <!-- Currently blocked countries -->
                 <div class="blocked-list" id="blocked-list">
                     <p class="empty-state">No countries blocked</p>
                 </div>
 
-                <button class="btn btn-secondary" id="btn-manage-blocked">
-                    Manage Blocked Countries
-                </button>
+                <!-- Country search and selection -->
+                <div class="country-selector">
+                    <input type="text" class="country-search" id="country-search" placeholder="Search countries to block...">
+                    <div class="country-grid" id="country-grid">
+                        <!-- Countries will be rendered here by JS -->
+                    </div>
+                </div>
+
+                <div class="blocked-actions">
+                    <button class="btn btn-secondary btn-small" id="btn-clear-blocked">
+                        Clear All Blocked
+                    </button>
+                </div>
             </section>
 
             <!-- Community Cloud Cache -->
@@ -278,7 +301,7 @@
                 </h2>
 
                 <div class="about-info">
-                    <p><strong>X-Posed</strong> v<span id="version">2.0.0</span></p>
+                    <p><strong>X-Posed</strong> v<span id="version">2.0.1</span></p>
                     <p class="text-muted">See where X users are located and what devices they use.</p>
                     
                     <div class="about-links">

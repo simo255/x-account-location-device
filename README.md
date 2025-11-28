@@ -244,14 +244,25 @@ Read the full [Privacy Policy](PRIVACY.md).
 
 ## 📝 Changelog
 
+### v2.0.1
+
+**Bug Fixes**
+- Fixed `getComputedStyle` → `window.getComputedStyle` for Zen browser/Firefox compatibility ([#4](https://github.com/xaitax/x-account-location-device/issues/4))
+
+**Enhancements**
+- Toggle-able sidebar "Block Countries" link — can now be hidden via Options ([#2](https://github.com/xaitax/x-account-location-device/issues/2))
+- Full country blocker UI in Options page — manage blocked countries without visiting X first
+
+---
+
 ### v2.0.0
 
-**🏗️ Architecture**
+**Architecture**
 - Modular TypeScript-ready codebase with Rollup
 - Cross-browser: Chrome MV3 + Firefox MV3
 - LRU cache with 50,000 entry limit
 
-**✨ New Features**
+**New Features**
 - Community Cloud Cache with Cloudflare Workers
 - Evidence Screenshot Generator — capture tweets with metadata overlay (location, device, VPN status, timestamp)
 - Statistics dashboard with analytics
@@ -259,7 +270,7 @@ Read the full [Privacy Policy](PRIVACY.md).
 - Options page with full configuration
 - Bulk sync local cache to cloud
 
-**🎨 UI/UX**
+**UI/UX**
 - Popup with quick toggles
 - Camera icon on badges for instant evidence capture
 - Light mode fully supported

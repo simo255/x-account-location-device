@@ -3,7 +3,7 @@
  * Centralized configuration for cross-browser compatibility
  */
 
-export const VERSION = '2.0.0';
+export const VERSION = '2.0.1';
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -121,6 +121,7 @@ export const DEFAULT_SETTINGS = {
     showFlags: true,
     showDevices: true,
     showVpnIndicator: true,
+    showSidebarBlockerLink: true,
     debugMode: false,
     cloudCacheEnabled: false  // Opt-in only
 };
