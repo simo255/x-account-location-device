@@ -34,7 +34,7 @@ Every tweet shows the author's real location and device at a glance.
 | 🌐 | Web browser |
 | 🔒 | VPN/Proxy detected — location may not be accurate |
 
-<img width="453" height="792" alt="image" src="https://github.com/user-attachments/assets/aaa83d2e-a822-46e1-b0ba-0b8a4c9c32e8" />
+<img width="603" height="1059" alt="image" src="https://github.com/user-attachments/assets/6501f487-9e7f-4aeb-b9c2-69b0e470c949" />
 
 ---
 
