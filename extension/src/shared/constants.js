@@ -241,6 +241,64 @@ export const REGION_DATA = [
     { name: 'West Asia', key: 'west asia', flag: '🌍' }
 ];
 
+// Countries by region
+
+export const COUNTRIES_BY_REGION = {
+    'africa': ['angola', 'benin', 'botswana', 'burkina faso', 'burundi', 'cameroon', 'cape verde',
+        'central african republic', 'chad', 'comoros', 'congo', 'democratic republic of the congo',
+        'djibouti', 'equatorial guinea', 'eritrea', 'eswatini', 'ethiopia', 'gabon', 'gambia',
+        'ghana', 'guinea', 'guinea-bissau', 'ivory coast', 'kenya', 'lesotho', 'liberia',
+        'madagascar', 'malawi', 'mali', 'mauritania', 'mauritius', 'mozambique', 'namibia',
+        'niger', 'nigeria', 'rwanda', 'sao tome and principe', 'senegal', 'seychelles',
+        'sierra leone', 'somalia', 'south africa', 'south sudan', 'sudan', 'tanzania', 'togo',
+        'uganda', 'zambia', 'zimbabwe'],
+    'australasia': [
+        'australia', 'new zealand'
+    ],
+    'east asia & pacific': [
+        'brunei', 'cambodia', 'china', 'east timor', 'fiji', 'hong kong', 'indonesia', 'japan',
+        'kiribati', 'laos', 'macao', 'macau', 'malaysia', 'marshall islands', 'micronesia',
+        'mongolia', 'myanmar', 'burma', 'nauru', 'north korea', 'palau', 'papua new guinea',
+        'philippines', 'samoa', 'singapore', 'solomon islands', 'south korea', 'taiwan',
+        'thailand', 'timor-leste', 'tonga', 'tuvalu', 'vanuatu', 'vietnam', 'viet nam'
+    ],
+    'europe': [
+        'albania', 'andorra', 'austria', 'belarus', 'belgium', 'bosnia and herzegovina', 'bosnia',
+        'bulgaria', 'croatia', 'cyprus', 'czech republic', 'czechia', 'denmark', 'england',
+        'estonia', 'finland', 'france', 'germany', 'greece', 'hungary', 'iceland', 'ireland',
+        'italy', 'kosovo', 'latvia', 'liechtenstein', 'lithuania', 'luxembourg', 'malta',
+        'moldova', 'monaco', 'montenegro', 'netherlands', 'north macedonia', 'macedonia',
+        'norway', 'poland', 'portugal', 'romania', 'russia', 'russian federation', 'san marino',
+        'scotland', 'serbia', 'slovakia', 'slovenia', 'spain', 'sweden', 'switzerland', 'ukraine',
+        'united kingdom', 'uk', 'great britain', 'britain', 'vatican city', 'wales'
+    ],
+    'north africa': [
+        'algeria', 'egypt', 'libya', 'morocco', 'tunisia'
+    ],
+    'north america': [
+        'antigua and barbuda', 'bahamas', 'barbados', 'belize', 'canada', 'costa rica', 'cuba',
+        'dominica', 'dominican republic', 'el salvador', 'grenada', 'guatemala', 'haiti',
+        'honduras', 'jamaica', 'mexico', 'nicaragua', 'panama', 'puerto rico', 'saint kitts and nevis',
+        'saint lucia', 'saint vincent and the grenadines', 'trinidad and tobago', 'united states',
+        'usa', 'us'
+    ],
+    'south america': [
+        'argentina', 'bolivia', 'brazil', 'chile', 'colombia', 'ecuador', 'guyana', 'paraguay',
+        'peru', 'suriname', 'uruguay', 'venezuela'
+    ],
+    'south asia': [
+        'afghanistan', 'bangladesh', 'bhutan', 'india', 'maldives', 'nepal', 'pakistan', 'sri lanka'
+    ],
+    'west asia': [
+        'armenia', 'azerbaijan', 'bahrain', 'georgia', 'iran', 'iraq', 'israel', 'jordan',
+        'kazakhstan', 'kuwait', 'kyrgyzstan', 'lebanon', 'oman', 'palestine', 'qatar',
+        'saudi arabia', 'syria', 'tajikistan', 'turkey', 'türkiye', 'turkmenistan',
+        'united arab emirates', 'uae', 'uzbekistan', 'yemen'
+
+    ]
+}
+
+
 // Region flags lookup by lowercase key
 export const REGION_FLAGS = Object.fromEntries(
     REGION_DATA.map(r => [r.key, r.flag])
